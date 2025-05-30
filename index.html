@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Demo</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        overflow: hidden;
+
+        cursor: none;
+      }
+
+      p {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #000;
+        font-family: Arial, sans-serif;
+        font-size: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+
+    <p>SCORE: <span>0</span></p>
+    <script>
+      // canvas definition
+      const canvas = document.querySelector("canvas");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const c = canvas.getContext("2d");
+
+      // initialization of Constants
+      const colors = [
+        "#FF5733",
+        "#33FF57",
+        "#3357FF",
+        "#F0F0F0",
+        "#000000",
+        "#FF33A1",
+        "#33FFF5",
+        "#FF8C33",
+      ];
+      const maxRadius = 40;
+      const mouse = {
+        x: undefined,
+        y: undefined,
+      };
+
+      // Initialization of Variables
+
+      var circleMouse;
+      var circleObject;
+      var holeLT, holeRT, holeLB, holeRB;
+      var score = 0;
+      var scoreElement = document.querySelector("p span");
+
+      // Event Listeners
+      window.addEventListener("mousemove", (event) => {
+        mouse.x = event.x;
+        mouse.y = event.y;
+      });
+
+      window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        init();
+      });
+
+      function Circle(x, y, dx, dy, radius, color) {
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.radius = radius;
+        this.color = color;
+
+        this.update = function () {
+          // Bounce off the mouse circle
+          const distX = this.x - circleMouse.x;
+          const distY = this.y - circleMouse.y;
+          const distance = Math.sqrt(distX * distX + distY * distY);
+          const timeout = 1 * 1000;
+
+          if (
+            distance < this.radius + (circleMouse.radius - 10) ||
+            distance < this.radius + circleMouse.radius
+          ) {
+            // Calculate the angle of collision
+            const angle = Math.atan2(distY, distX);
+            // Move the circle away from the mouse circle
+            this.dx = Math.cos(angle) * 5;
+            this.dy = Math.sin(angle) * 5;
+          } else {
+            // Move the circle normally
+            this.x += this.dx;
+            this.y += this.dy;
+          }
+
+          // Bounce off the edges of the canvas
+          if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+            this.dx = -this.dx;
+          }
+
+          // Bounce off the top and bottom edges of the canvas
+          if (
+            this.y + this.radius > canvas.height ||
+            this.y - this.radius < 0
+          ) {
+            this.dy = -this.dy;
+          }
+
+          // check if the circle enters any of the holes
+          // if circle enters a hole, change the color of the hole circle entered
+          // if the circle enters a hole, move the circle to the center of the hole
+          // shrink the circle to the radius of the hole
+          var hole;
+
+          if (
+            this.x - this.radius < holeLT.x + 20 &&
+            this.y - this.radius < holeLT.y + 20
+          ) {
+            hole = holeLT;
+          } else if (
+            this.x - this.radius < holeLB.x + 20 &&
+            this.y + this.radius > holeLB.y - 20
+          ) {
+            hole = holeLB;
+          } else if (
+            this.x + this.radius > holeRT.x - 20 &&
+            this.y - this.radius < holeRT.y + 20
+          ) {
+            hole = holeRT;
+          } else if (
+            this.x + this.radius > holeRB.x - 20 &&
+            this.y + this.radius > holeRB.y - 20
+          ) {
+            hole = holeRB;
+          }
+
+          if (hole) {
+            // Change the color of the hole
+            hole.color = colors[2];
+
+            // Reset the velocity
+            this.dx = 0;
+            this.dy = 0;
+
+            this.x = canvas.width / 2;
+            this.y = canvas.height / 2;
+            this.radius = 20;
+            hole.color = colors[4];
+            score++;
+            scoreElement.textContent = score;
+          }
+
+          // Update position
+          this.y += this.dy;
+
+          this.draw();
+        };
+
+        this.draw = function () {
+          c.beginPath();
+          c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+          c.fillStyle = this.color;
+          c.fill();
+          c.closePath();
+        };
+
+        this.mouseUpdate = function () {
+          this.x = mouse.x;
+          this.y = mouse.y;
+          this.draw();
+        };
+      }
+
+      function init() {
+        const x = canvas.width / 2;
+        const y = canvas.height / 2;
+        const hole = 70;
+        const ball = 20;
+
+        circleObject = new Circle(x, y, 0, 0, ball, colors[1]);
+        circleMouse = new Circle(undefined, undefined, 0, 0, 30, colors[0]);
+
+        holeLT = new Circle(0, 0, 0, 0, hole, colors[4]);
+        holeRT = new Circle(canvas.width, 0, 0, 0, hole, colors[4]);
+        holeLB = new Circle(0, canvas.height, 0, 0, hole, colors[4]);
+        holeRB = new Circle(canvas.width, canvas.height, 0, 0, hole, colors[4]);
+
+        scoreElement.textContent = score;
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        c.clearRect(0, 0, canvas.width, canvas.height);
+
+        holeLT.draw();
+        holeRT.draw();
+        holeLB.draw();
+        holeRB.draw();
+
+        circleObject.update();
+
+        circleMouse.x = mouse.x;
+        circleMouse.y = mouse.y;
+        circleMouse.mouseUpdate();
+      }
+
+      init();
+      animate();
+    </script>
+  </body>
+</html>
