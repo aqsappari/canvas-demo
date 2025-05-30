@@ -148,17 +148,27 @@
           if (hole) {
             // Change the color of the hole
             hole.color = colors[2];
-
+            // Move the circle to the center of the hole
+            this.x = hole.x;
+            this.y = hole.y;
+            // Shrink the circle to the radius of the hole
+            this.radius = 5;
             // Reset the velocity
             this.dx = 0;
             this.dy = 0;
 
-            this.x = canvas.width / 2;
-            this.y = canvas.height / 2;
-            this.radius = 20;
-            hole.color = colors[4];
+            // Set a timeout to reset the circle after a delay
+            setTimeout(() => {
+              this.radius = 20; // Reset to original radius
+              this.color = colors[1]; // Reset color
+              this.x = canvas.width / 2; // Reset position
+              this.y = canvas.height / 2; // Reset position
+              hole.color = colors[4]; // Reset hole color
+              hole = null; // Reset hole variable
+            }, timeout);
+
             score++;
-            scoreElement.textContent = score;
+            scoreElement.textContent = score; // Update score display
           }
 
           // Update position
