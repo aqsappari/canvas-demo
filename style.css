@@ -1,0 +1,142 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  overflow: hidden;
+  cursor: none; /* Hide default cursor during gameplay */
+  background-color: #f0f0f0; /* Light background for contrast */
+  font-family: "Poppins", sans-serif; /* Set Poppins as default font */
+  touch-action: none; /* Prevent default touch actions like scrolling/zooming on the body */
+}
+
+body.paused {
+  cursor: auto; /* Show default cursor when paused */
+}
+
+#score-container {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #333; /* Darker text for readability */
+  /* Responsive font size */
+  font-size: 2.8vmin; /* Adjusted from 28px */
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1vmin 2vmin; /* Adjusted padding */
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  gap: 1.5vmin; /* Space between score and button */
+  z-index: 10; /* Ensure it's above the canvas and overlay */
+}
+
+#pause-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2.4vmin; /* Adjusted from 24px */
+  color: #555;
+  transition: color 0.2s ease-in-out;
+}
+
+#pause-button:hover {
+  color: #000;
+}
+
+canvas {
+  background-color: #eee;
+  display: block;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transition: filter 0.5s ease-in-out; /* Smooth transition for darkening */
+  touch-action: none; /* Prevent default touch actions like scrolling/zooming on the canvas */
+}
+
+/* Pause Overlay Styles */
+#pause-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  /* Responsive font size */
+  font-size: 8vmin; /* Adjusted from 6em */
+  font-weight: bold;
+  pointer-events: none; /* Allows clicks to pass through initially */
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.5s ease-in-out; /* Smooth transition for overlay */
+  z-index: 5; /* Below score-container but above canvas */
+}
+
+#pause-overlay.active {
+  opacity: 1; /* Visible when active */
+  pointer-events: auto; /* Capture clicks when active */
+}
+
+/* When canvas is dimmed */
+canvas.dimmed {
+  filter: brightness(50%); /* Reduce brightness */
+}
+
+/* NEW: Instruction Overlay Styles */
+#instruction-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9); /* Very dark overlay */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  z-index: 20; /* On top of everything else */
+  opacity: 0; /* Hidden by default, managed by JS */
+  pointer-events: none; /* Allows clicks to pass through initially, managed by JS */
+  transition: opacity 0.5s ease-in-out;
+}
+
+#instruction-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#instruction-overlay h2 {
+  font-size: 7vmin; /* Responsive heading */
+  margin-bottom: 2vmin;
+  color: #33ff57; /* Green to match ball */
+}
+
+#instruction-overlay p {
+  font-size: 3vmin; /* Responsive paragraph text */
+  margin-bottom: 1vmin;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+#instruction-overlay button {
+  background-color: #3357ff; /* Blue to match hole */
+  color: white;
+  border: none;
+  padding: 1.5vmin 4vmin; /* Responsive padding */
+  font-size: 3.5vmin; /* Responsive button text */
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 3vmin;
+  transition: background-color 0.3s ease;
+}
+
+#instruction-overlay button:hover {
+  background-color: #2a4acb;
+}
